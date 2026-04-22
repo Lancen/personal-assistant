@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@personal-assistant/shared": "workspace:*",
+    "@personal-assistant/types": "workspace:*",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "zod": "^3.24.2"
