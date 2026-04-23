@@ -6,9 +6,8 @@ import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard,
   FileText,
-  CheckSquare,
-  Lightbulb,
-  MessageSquare,
+  BarChart3,
+  CheckCircle,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -25,19 +24,14 @@ const navItems = [
     icon: FileText,
   },
   {
-    name: '任务列表',
-    href: '/tasks',
-    icon: CheckSquare,
+    name: '情绪检测',
+    href: '/emotion/check',
+    icon: CheckCircle,
   },
   {
-    name: '知识沉淀',
-    href: '/knowledge',
-    icon: Lightbulb,
-  },
-  {
-    name: '对话',
-    href: '/conversation',
-    icon: MessageSquare,
+    name: '情绪分析',
+    href: '/emotion-analysis',
+    icon: BarChart3,
   },
   {
     name: '用户管理',

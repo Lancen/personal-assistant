@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   FileText,
-  CheckSquare,
-  Lightbulb,
-  MessageSquare,
+  BarChart3,
+  CheckCircle,
+  Settings,
 } from 'lucide-react';
 
 const navItems = [
@@ -22,19 +22,19 @@ const navItems = [
     icon: FileText,
   },
   {
-    name: '任务',
-    href: '/tasks',
-    icon: CheckSquare,
+    name: '检测',
+    href: '/emotion/check',
+    icon: CheckCircle,
   },
   {
-    name: '知识',
-    href: '/knowledge',
-    icon: Lightbulb,
+    name: '分析',
+    href: '/emotion-analysis',
+    icon: BarChart3,
   },
   {
-    name: '对话',
-    href: '/conversation',
-    icon: MessageSquare,
+    name: '管理',
+    href: '/admin/users',
+    icon: Settings,
   },
 ];
 
@@ -42,7 +42,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <div className="h-[60px] flex items-center justify-around px-2">
+    <div className="h-[60px] flex items-center justify-around px-2 pt-1">
       {navItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         const Icon = item.icon;
