@@ -3,60 +3,60 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { api, ConversationSummary } from '@/lib/api';
-import { Plus, LogOut, MessageSquare, Clock } from 'lucide-react';
+import { api } from '@/lib/api';
+import { EmotionRecord, EmotionDailyCheck } from '@personal-assistant/types';
+import { Calendar, Smile, CheckSquare, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
+  const [todayCheck, setTodayCheck] = useState<EmotionDailyCheck | null>(null);
+  const [recentRecords, setRecentRecords] = useState<EmotionRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
       return;
     }
-
-    loadConversations();
+    loadData();
   }, [isAuthenticated, router]);
 
-  async function loadConversations() {
+  async function loadData() {
     try {
-      const data = await api.conversations.list();
-      setConversations(data.conversations.sort((a, b) => b.updatedAt - a.updatedAt));
+      // 获取今日检测状态
+      const statusRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/emotion-check/status`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+      });
+      const statusData = await statusRes.json();
+      if (statusData.success) {
+        setTodayCheck(statusData.data.existingCheck);
+      }
+
+      // 获取最近情绪记录
+      const recordsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/emotion/records?page=1&pageSize=5`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+      });
+      const recordsData = await recordsRes.json();
+      if (recordsData.success) {
+        setRecentRecords(recordsData.data);
+      }
     } catch (error) {
-      console.error('Failed to load conversations:', error);
+      console.error('Failed to load dashboard data:', error);
     } finally {
       setLoading(false);
     }
   }
 
-  async function createNewConversation() {
-    setCreating(true);
-    try {
-      const { conversation } = await api.conversations.create();
-      router.push(`/conversation/${conversation.id}`);
-    } catch (error) {
-      console.error('Failed to create conversation:', error);
-    } finally {
-      setCreating(false);
-    }
-  }
-
-  function handleLogout() {
-    logout();
-    router.push('/');
-  }
-
-  function formatDate(timestamp: number): string {
-    return new Date(timestamp).toLocaleDateString('zh-CN', {
+  function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('zh-CN', {
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   }
 
@@ -65,121 +65,113 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-dvh px-4 py-8">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-2xl">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              你好，{user?.name || '用户'} 👋
-            </h1>
-            <p className="text-primary/70">
-              开始与您的 AI 个人助理对话
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="btn-secondary flex items-center gap-2 cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            退出
-          </button>
-        </div>
+    <div className="px-4 py-6 max-w-4xl mx-auto">
+      {/* 欢迎标题 */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-2">仪表盘</h1>
+        <p className="text-primary/70">欢迎回来，查看你的近期状态</p>
+      </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-md mb-2xl">
-          <div className="card card-hover">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-accent/10">
-                <MessageSquare className="w-6 h-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-sm text-primary/60">对话总数</p>
-                <p className="text-2xl font-semibold text-foreground">
-                  {conversations.length}
-                </p>
-              </div>
+      {/* 快捷提示卡片 */}
+      {!todayCheck && (
+        <div className="card mb-6 border-accent bg-accent/5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-foreground mb-1">今日还未完成情绪检测</h3>
+              <p className="text-sm text-primary/70">完成每日检测，帮助你更好地了解自己的情绪状态</p>
             </div>
+            <Link
+              href="/emotion/check"
+              className="btn-primary cursor-pointer"
+            >
+              去检测
+            </Link>
           </div>
-          <div className="card card-hover">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-accent/10">
-                <Clock className="w-6 h-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-sm text-primary/60">最新对话</p>
-                <p className="text-lg font-semibold text-foreground">
-                  {conversations.length > 0
-                    ? formatDate(conversations[0].updatedAt).split(' ')[0]
-                    : '暂无'}
-                </p>
-              </div>
+        </div>
+      )}
+
+      {/* 统计卡片 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="card card-hover">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-accent/10">
+              <Smile className="w-6 h-6 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm text-primary/60">今日情绪检测</p>
+              <p className="text-xl font-semibold text-foreground">
+                {todayCheck ? `${todayCheck.totalScore}/50` : '未完成'}
+              </p>
+              {todayCheck && todayCheck.isBelowThreshold && (
+                <p className="text-xs text-destructive mt-1">状态偏低，建议谨慎决策</p>
+              )}
             </div>
           </div>
         </div>
 
-        {/* New Conversation Button */}
-        <div className="mb-xl">
-          <button
-            onClick={createNewConversation}
-            disabled={creating}
-            className="btn-primary w-full flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Plus className="w-5 h-5" />
-            {creating ? '创建中...' : '新建对话'}
-          </button>
+        <div className="card card-hover">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-accent/10">
+              <FileText className="w-6 h-6 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm text-primary/60">情绪记录</p>
+              <p className="text-xl font-semibold text-foreground">
+                {recentRecords.length} 条最近记录
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 最近情绪记录 */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-foreground">最近记录</h2>
+          <Link href="/emotion" className="btn-secondary cursor-pointer text-sm px-4 py-2">
+            查看全部
+          </Link>
         </div>
 
-        {/* Conversation List */}
-        <div className="space-y-md">
-          <h2 className="text-xl font-semibold text-foreground mb-md">
-            最近对话
-          </h2>
-
-          {loading ? (
-            <div className="text-center py-xl text-primary/60">加载中...</div>
-          ) : conversations.length === 0 ? (
-            <div className="card text-center py-3xl">
-              <MessageSquare className="w-12 h-12 mx-auto mb-md text-primary/40" />
-              <p className="text-primary/60 mb-lg">还没有对话</p>
-              <button
-                onClick={createNewConversation}
-                disabled={creating}
-                className="btn-primary inline-flex items-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                创建第一个对话
-              </button>
-            </div>
-          ) : (
-            conversations.map((conv) => (
+        {loading ? (
+          <div className="text-center py-8 text-primary/60">加载中...</div>
+        ) : recentRecords.length === 0 ? (
+          <div className="text-center py-8 text-primary/60">
+            <p>还没有情绪记录</p>
+            <Link href="/emotion/new" className="btn-primary inline-block mt-4 cursor-pointer">
+              创建第一条记录
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentRecords.map((record) => (
               <Link
-                key={conv.id}
-                href={`/conversation/${conv.id}`}
-                className="card card-hover block w-full cursor-pointer"
+                key={record.id}
+                href={`/emotion/${record.id}`}
+                className="block card card-hover cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-medium text-foreground truncate">
-                      {conv.title || 'New Conversation'}
-                    </h3>
-                    <p className="text-sm text-primary/60 mt-1 truncate">
-                      {conv.lastMessage || '暂无消息'}
-                    </p>
-                  </div>
-                  <div className="ml-md text-right">
-                    <span className="text-xs text-primary/50">
-                      {formatDate(conv.updatedAt)}
-                    </span>
-                    <p className="text-xs text-primary/50 mt-1">
-                      {conv.messageCount} 条消息
-                    </p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-foreground truncate">
+                        {record.event.slice(0, 40)}
+                        {record.event.length > 40 ? '...' : ''}
+                      </span>
+                    </div>
+                    <div className="text-sm text-primary/60 mt-1">
+                      {record.emotionType && (
+                        <span className="inline-block px-2 py-1 rounded bg-muted mr-2">
+                          {record.emotionType}
+                        </span>
+                      )}
+                      <span>{formatDate(record.recordDate)}</span>
+                    </div>
                   </div>
                 </div>
               </Link>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

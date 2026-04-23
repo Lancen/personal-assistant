@@ -22,6 +22,10 @@
     "typecheck:frontend": "cd packages/frontend && pnpm typecheck"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "drizzle-kit": "^0.30.6"
+  },
+  "dependencies": {
+    "postgres": "^3.4.9"
   }
 }

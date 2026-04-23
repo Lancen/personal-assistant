@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec status *)",
+      "Bash(openspec instructions *)",
+      "Bash(npx drizzle-kit *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm dev *)",
+      "Bash(pnpm rebuild *)",
+      "Bash(git commit *)",
+      "Bash(git add *)",
+      "Bash(pnpm drizzle-kit *)"
+    ]
+  }
+}

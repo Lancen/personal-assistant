@@ -1,0 +1,64 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import EmotionRecordForm, { EmotionFormData } from '@/components/emotion/EmotionRecordForm';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export default function NewEmotionRecordPage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(data: EmotionFormData) {
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`${API_BASE}/api/emotion/records`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token!}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (result.success) {
+        router.push('/emotion');
+      } else {
+        alert(result.error || '创建失败');
+      }
+    } catch (error) {
+      console.error('Failed to create record:', error);
+      alert('创建失败，请重试');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="px-4 py-6 max-w-2xl mx-auto">
+      <div className="flex items-center gap-2 mb-6">
+        <Link href="/emotion" className="p-2 -ml-2 text-primary hover:text-accent cursor-pointer">
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <h1 className="text-2xl font-bold text-foreground">新建情绪记录</h1>
+      </div>
+
+      <div className="card">
+        <EmotionRecordForm
+          onSubmit={handleSubmit}
+          submitText={submitting ? '保存中...' : '保存记录'}
+        />
+      </div>
+    </div>
+  );
+}
