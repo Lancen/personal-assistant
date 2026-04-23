@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-本文件为 Claude Code (claude.ai/code) 在本代码仓库中的工作提供指导。
+本文件为 Claude Code (claude.ai/code) 在本代码仓库中的工作提供**快速参考指导**。
+
+详细规范请参见：`.claude/rules/` 目录下的规则文件。
 
 ## 常用命令
 
@@ -12,17 +14,17 @@
 - `pnpm lint` - 运行 ESLint 代码质量检查
 - `pnpm typecheck` - 运行 TypeScript 类型检查
 
-## 架构说明
+## 架构概要
 
 这是一个 **Monorepo** 项目，使用 pnpm workspace 管理：
-- **frontend**: Next.js 16.2.4，使用 App Router 模式，React 19 + TypeScript + Tailwind CSS v4
+- **frontend**: Next.js 16 + React 19 + TypeScript + Tailwind CSS v4
 - **backend**: Express.js Node.js 后端 API 服务
 - **types**: 前后端共享类型定义
 - **drizzle**: 数据库 ORM 配置和 schema 定义
 
 关键点：
 - 前后端可以独立部署，也可以一起部署
-- 类型定义在 types 包，前后端共享
+- 类型定义在 `types` 包，前后端共享
 - 前端运行在 `http://localhost:3000`，后端运行在 `http://localhost:3001`
 
 ## 项目结构
@@ -53,6 +55,12 @@ personal-assistant/
 │       │   └── lib/        # 前端工具（API 客户端）
 │       ├── public/         # 静态资源
 │       └── package.json
+├── .claude/rules/          # Claude Code 详细规则
+│   ├── coding-style.md     # 代码风格规范
+│   ├── git-workflow.md     # Git 工作流
+│   ├── security.md         # 安全规则
+│   ├── tech-stack.md       # 技术选型规范
+│   └── testing.md          # 测试要求
 ├── docs/                   # 产品需求和技术架构文档
 ├── openspec/               # OpenSpec 变更管理
 ├── pnpm-workspace.yaml     # pnpm 工作区配置
