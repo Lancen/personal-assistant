@@ -1,20 +1,32 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# 输出语言设置
+language: zh-CN
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+# Project context
+context: |
+  技术栈: TypeScript, React 19, Next.js 16, Express.js, Node.js
+  项目类型: 个人助手 Monorepo 项目
+  代码规范: 使用 ESLint，遵循 conventional commits
+  架构: 前后端分离，types 包共享类型定义
+
+# 全局规则
+rules:
+  # 所有生成的内容都必须使用中文
+  global:
+    - 所有生成的文档、注释、任务描述、提案内容都必须使用中文输出
+    - 保持代码标识符和技术术语为英文，但注释和文档必须是中文
+
+  proposal:
+    - 所有提案文档必须使用中文撰写
+    - 提案需要包含清晰的目标、非目标、设计方案和任务分解
+    - 保持内容简洁明了，便于理解
+
+  tasks:
+    - 所有任务描述必须使用中文
+    - 将大型任务拆分为不超过 2 小时的小任务
+    - 任务描述要具体，便于执行
+
+  spec:
+    - 所有技术规格文档必须使用中文
+    - 需要包含清晰的数据结构、API 设计和实现细节
