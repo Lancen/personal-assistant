@@ -7,6 +7,12 @@ import { success, error, paginated } from '../utils/response';
 import { DEFAULT_PAGE_SIZE } from '@personal-assistant/types';
 import { AuthenticatedRequest } from '../middleware/auth';
 
+/**
+ * 获取用户列表（管理员功能）
+ * @query page - 页码，默认 1
+ * @query pageSize - 每页条数，默认 DEFAULT_PAGE_SIZE
+ * @returns 分页用户列表
+ */
 export async function listUsersController(req: Request, res: Response) {
   const page = parseInt((req.query.page as string | undefined) || '1') || 1;
   const pageSize = parseInt((req.query.pageSize as string | undefined) || String(DEFAULT_PAGE_SIZE)) || DEFAULT_PAGE_SIZE;
@@ -15,6 +21,14 @@ export async function listUsersController(req: Request, res: Response) {
   return res.json(paginated(users, page, total, pageSize));
 }
 
+/**
+ * 创建新用户（管理员功能）
+ * @body email - 用户邮箱（必填）
+ * @body name - 用户姓名（必填）
+ * @body password - 密码（必填）
+ * @body isAdmin - 是否为管理员，默认 false
+ * @returns 创建成功返回用户信息
+ */
 export async function createUserController(req: Request, res: Response) {
   const { email, name, password, isAdmin = false } = req.body;
 
@@ -42,6 +56,15 @@ export async function createUserController(req: Request, res: Response) {
   }
 }
 
+/**
+ * 更新用户信息（管理员功能）
+ * @param id - 用户ID
+ * @body name - 姓名（可选）
+ * @body password - 密码（可选）
+ * @body isAdmin - 是否管理员（可选）
+ * @body isActive - 是否启用（可选）
+ * @returns 更新成功返回用户信息
+ */
 export async function updateUserController(req: AuthenticatedRequest, res: Response) {
   const { id } = req.params;
   const { name, password, isAdmin, isActive } = req.body;
@@ -63,6 +86,11 @@ export async function updateUserController(req: AuthenticatedRequest, res: Respo
   return res.json(success({ user: updated }));
 }
 
+/**
+ * 删除用户（软删除，管理员功能）
+ * @param id - 用户ID
+ * @returns 删除成功
+ */
 export async function deleteUserController(req: Request, res: Response) {
   const { id } = req.params;
   const deleted = await deleteUser(parseInt(id as string));

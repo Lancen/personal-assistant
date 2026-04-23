@@ -11,10 +11,14 @@ import { AuthenticatedRequest } from '../middleware/auth';
 import { EmotionQuestion } from '@personal-assistant/types';
 import { DEFAULT_PAGE_SIZE } from '@personal-assistant/types';
 
-// 默认阈值 - 总分低于25提醒
+/** 默认情绪阈值 - 总分低于 25 发出提醒 */
 const DEFAULT_THRESHOLD = 25;
 
-// 获取今日检测状态
+/**
+ * 获取今日检测状态
+ * @requires 登录认证
+ * @returns alreadyCompleted - 今日是否已完成检测，existingCheck - 如果已完成返回检测结果
+ */
 export async function getStatusController(req: AuthenticatedRequest, res: Response) {
   const userId = req.user.userId;
   const today = new Date().toISOString().split('T')[0];
@@ -26,7 +30,12 @@ export async function getStatusController(req: AuthenticatedRequest, res: Respon
   }));
 }
 
-// 生成今日检测题目
+/**
+ * 生成今日检测题目（抽样 10 题）
+ * @requires 登录认证
+ * @returns 随机抽样的 10 个检测问题
+ * @description 保证每个维度至少一题，剩余随机抽取，最后打乱顺序
+ */
 export async function generateQuestionsController(req: AuthenticatedRequest, res: Response) {
   const userId = req.user.userId;
   const today = new Date().toISOString().split('T')[0];
@@ -75,7 +84,13 @@ export async function generateQuestionsController(req: AuthenticatedRequest, res
   return res.json(success({ questions: shuffled }));
 }
 
-// 提交检测答案
+/**
+ * 提交今日检测答案
+ * @requires 登录认证
+ * @body answers - 包含 10 个答案的数组，每个答案 { questionId, score }
+ * @description 计算总分，判断是否低于阈值，保存检测结果
+ * @returns 保存成功返回检测结果和提示信息
+ */
 export async function submitAnswersController(req: AuthenticatedRequest, res: Response) {
   const userId = req.user.userId;
   const today = new Date().toISOString().split('T')[0];
@@ -129,7 +144,13 @@ export async function submitAnswersController(req: AuthenticatedRequest, res: Re
   }));
 }
 
-// 获取历史检测记录
+/**
+ * 获取历史检测记录分页列表
+ * @requires 登录认证
+ * @query page - 页码，默认 1
+ * @query pageSize - 每页条数，默认 DEFAULT_PAGE_SIZE
+ * @returns 分页历史检测记录列表
+ */
 export async function getHistoryController(req: AuthenticatedRequest, res: Response) {
   const userId = req.user.userId;
   const page = parseInt((req.query.page as string | undefined) || '1') || 1;
@@ -139,10 +160,15 @@ export async function getHistoryController(req: AuthenticatedRequest, res: Respo
   return res.json(paginated(checks, page, total, pageSize));
 }
 
-// 获取多周期分析数据
+/**
+ * 获取多周期情绪得分趋势数据（用于分析回顾）
+ * @requires 登录认证
+ * @query period - 时间周期：day/week/month/quarter
+ * @returns 指定时间范围内的每日得分趋势数据
+ */
 export async function getAnalysisController(req: AuthenticatedRequest, res: Response) {
   const userId = req.user.userId;
-  const period = req.query.period as 'day' | 'week' | 'month' | 'quarter';
+  const period = (req.query.period as string) as 'day' | 'week' | 'month' | 'quarter';
 
   // 计算时间范围
   const end = new Date();

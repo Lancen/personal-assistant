@@ -3,6 +3,12 @@ import { success, error } from '../utils/response';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { getAIService } from '../services/aiService';
 
+/**
+ * 调用 AI 识别文本中的情绪
+ * @requires 登录认证
+ * @body text - 需要识别的文本内容（必填）
+ * @returns AI 识别结果 { emotionType, intensity }
+ */
 export async function recognizeEmotionController(req: AuthenticatedRequest, res: Response) {
   const { text } = req.body;
 
