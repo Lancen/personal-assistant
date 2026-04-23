@@ -23,18 +23,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for saved token on mount
+    // Check for saved token on mount, verify it with backend
     const token = localStorage.getItem('auth_token');
     const savedUser = localStorage.getItem('auth_user');
     if (token && savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-      }
+      // Verify token is still valid by calling /api/auth/me
+      fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        if (response.ok) {
+          // Token is valid, use saved user
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+          }
+        } else {
+          // Token invalid, clear storage
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+        }
+      })
+      .catch(() => {
+        // Network error, still trust local storage
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -52,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const data = await response.json();
-      const { token, user } = data;
+      const { token, user } = data.data;
 
       localStorage.setItem('auth_token', token);
       localStorage.setItem('auth_user', JSON.stringify(user));

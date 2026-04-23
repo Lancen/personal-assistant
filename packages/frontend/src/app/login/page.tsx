@@ -21,7 +21,10 @@ export default function LoginPage() {
     const success = await login(email, password);
 
     if (success) {
-      router.push('/dashboard');
+      // 等待 React 更新状态后再跳转，避免 dashboard 检查到 isAuthenticated 为 false 又跳回 login
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     } else {
       setError('登录失败，请检查邮箱和密码');
       setLoading(false);
