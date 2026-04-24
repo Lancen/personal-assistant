@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import EmotionRecordForm, { EmotionFormData } from '@/components/emotion/EmotionRecordForm';
@@ -10,9 +10,15 @@ import Link from 'next/link';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function NewEmotionRecordPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [loading, isAuthenticated, router]);
 
   async function handleSubmit(data: EmotionFormData) {
     setSubmitting(true);
@@ -38,6 +44,10 @@ export default function NewEmotionRecordPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
   }
 
   if (!isAuthenticated) {

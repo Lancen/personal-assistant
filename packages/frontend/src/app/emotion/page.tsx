@@ -10,24 +10,26 @@ import Link from 'next/link';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function EmotionListPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [records, setRecords] = useState<EmotionRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-    loadRecords(1);
-  }, [isAuthenticated, router]);
+    if (!loading) {
+      loadRecords(1);
+    }
+  }, [loading, isAuthenticated, router]);
 
   async function loadRecords(currentPage: number) {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(
@@ -48,7 +50,7 @@ export default function EmotionListPage() {
     } catch (error) {
       console.error('Failed to load records:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -58,6 +60,10 @@ export default function EmotionListPage() {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
   }
 
   if (!isAuthenticated) {
@@ -82,7 +88,7 @@ export default function EmotionListPage() {
       </div>
 
       {/* 记录列表 */}
-      {loading && page === 1 ? (
+      {loadingData && page === 1 ? (
         <div className="text-center py-12 text-primary/60">加载中...</div>
       ) : records.length === 0 ? (
         <div className="card text-center py-12">

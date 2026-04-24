@@ -12,20 +12,22 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function EditEmotionRecordPage() {
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [record, setRecord] = useState<EmotionRecord | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-    loadRecord();
-  }, [id, isAuthenticated, router]);
+    if (!loading) {
+      loadRecord();
+    }
+  }, [id, loading, isAuthenticated, router]);
 
   async function loadRecord() {
     try {
@@ -42,7 +44,7 @@ export default function EditEmotionRecordPage() {
     } catch (error) {
       console.error('Failed to load record:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -100,11 +102,15 @@ export default function EditEmotionRecordPage() {
     }
   }
 
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
+  }
+
   if (!isAuthenticated) {
     return null;
   }
 
-  if (loading) {
+  if (loadingData) {
     return (
       <div className="px-4 py-6 text-center text-primary/60">加载中...</div>
     );

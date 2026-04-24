@@ -21,7 +21,25 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* PC端：左侧固定侧边栏 (>= 768px 显示，移动端隐藏) */}
-      <div className="hidden md:block w-56 fixed left-0 top-0 h-screen border-r border-border bg-background z-30">
+      {/* 使用自定义 CSS 媒体查询确保规则存在，不依赖 Tailwind JIT 自动生成 */}
+      <style jsx>{`
+        .sidebar-layout {
+          display: none;
+        }
+        @media (min-width: 768px) {
+          .sidebar-layout {
+            display: block;
+          }
+        }
+        .main-content {
+        }
+        @media (min-width: 768px) {
+          .main-content {
+            margin-left: 14rem; /* w-56 = 14rem */
+          }
+        }
+      `}</style>
+      <div className="sidebar-layout w-56 fixed left-0 top-0 h-screen border-r border-border bg-background z-30">
         <Sidebar />
       </div>
 
@@ -29,7 +47,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* - PC端：左边空出侧边栏宽度 */}
       {/* - 移动端：底部空出导航栏高度 + 安全区域 */}
       {/* - PC端：不需要底部留白 */}
-      <div className="md:ml-56">
+      <div className="main-content">
         <main className="pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0">
           {children}
         </main>

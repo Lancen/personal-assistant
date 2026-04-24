@@ -12,9 +12,9 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const DEFAULT_THRESHOLD = 25;
 
 export default function EmotionCheckPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [existingCheck, setExistingCheck] = useState<EmotionDailyCheck | null>(null);
   const [questions, setQuestions] = useState<EmotionQuestion[]>([]);
   const [answers, setAnswers] = useState<Map<number, number>>(new Map());
@@ -28,12 +28,14 @@ export default function EmotionCheckPage() {
   } | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-    checkStatus();
-  }, [isAuthenticated, router]);
+    if (!loading) {
+      checkStatus();
+    }
+  }, [loading, isAuthenticated, router]);
 
   async function checkStatus() {
     try {
@@ -62,7 +64,7 @@ export default function EmotionCheckPage() {
     } catch (error) {
       console.error('Failed to check status:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -131,11 +133,15 @@ export default function EmotionCheckPage() {
   const progress = ((currentIndex + 1) / questions.length) * 100;
   const allAnswered = questions.length === 10 && answers.size === 10;
 
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
+  }
+
   if (!isAuthenticated) {
     return null;
   }
 
-  if (loading) {
+  if (loadingData) {
     return (
       <div className="px-4 py-6 text-center text-primary/60">加载中...</div>
     );

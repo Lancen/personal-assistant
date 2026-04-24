@@ -9,19 +9,21 @@ import { Calendar, Smile, CheckSquare, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [todayCheck, setTodayCheck] = useState<EmotionDailyCheck | null>(null);
   const [recentRecords, setRecentRecords] = useState<EmotionRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-    loadData();
-  }, [isAuthenticated, router]);
+    if (!loading) {
+      loadData();
+    }
+  }, [loading, isAuthenticated, router]);
 
   async function loadData() {
     try {
@@ -49,7 +51,7 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -58,6 +60,10 @@ export default function DashboardPage() {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
   }
 
   if (!isAuthenticated) {
@@ -133,7 +139,7 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {loading ? (
+        {loadingData ? (
           <div className="text-center py-8 text-primary/60">加载中...</div>
         ) : recentRecords.length === 0 ? (
           <div className="text-center py-8 text-primary/60">

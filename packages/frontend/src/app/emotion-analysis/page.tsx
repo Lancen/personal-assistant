@@ -19,22 +19,24 @@ const periodLabels: Record<Period, string> = {
 };
 
 export default function EmotionAnalysisPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [period, setPeriod] = useState<Period>('week');
-  const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(false);
   const [analysis, setAnalysis] = useState<EmotionAnalysisResult | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-    loadAnalysis();
-  }, [period, isAuthenticated, router]);
+    if (!loading) {
+      loadAnalysis();
+    }
+  }, [period, loading, isAuthenticated, router]);
 
   async function loadAnalysis() {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(
@@ -52,8 +54,12 @@ export default function EmotionAnalysisPage() {
     } catch (error) {
       console.error('Failed to load analysis:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
+  }
+
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
   }
 
   if (!isAuthenticated) {
@@ -88,7 +94,7 @@ export default function EmotionAnalysisPage() {
         ))}
       </div>
 
-      {loading ? (
+      {loadingData ? (
         <div className="text-center py-12 text-primary/60">分析中...</div>
       ) : !analysis ? (
         <div className="card text-center py-12 text-primary/60">

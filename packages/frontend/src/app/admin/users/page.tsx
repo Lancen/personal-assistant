@@ -10,10 +10,10 @@ import Link from 'next/link';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function AdminUsersPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
@@ -26,15 +26,17 @@ export default function AdminUsersPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-    loadUsers();
-  }, [isAuthenticated, router]);
+    if (!loading) {
+      loadUsers();
+    }
+  }, [loading, isAuthenticated, router]);
 
   async function loadUsers() {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(`${API_BASE}/api/admin/users`, {
@@ -49,7 +51,7 @@ export default function AdminUsersPage() {
     } catch (error) {
       console.error('Failed to load users:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -140,6 +142,10 @@ export default function AdminUsersPage() {
     }
   }
 
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
+  }
+
   if (!isAuthenticated) {
     return null;
   }
@@ -162,7 +168,7 @@ export default function AdminUsersPage() {
         </button>
       </div>
 
-      {loading ? (
+      {loadingData ? (
         <div className="text-center py-12 text-primary/60">加载中...</div>
       ) : users.length === 0 ? (
         <div className="card text-center py-12 text-primary/60">

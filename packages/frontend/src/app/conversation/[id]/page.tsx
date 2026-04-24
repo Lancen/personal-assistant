@@ -11,10 +11,10 @@ export default function ConversationPage() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [sending, setSending] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -28,13 +28,14 @@ export default function ConversationPage() {
   }, [messages]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
       return;
     }
-
-    loadConversation();
-  }, [id, isAuthenticated, router]);
+    if (!loading) {
+      loadConversation();
+    }
+  }, [id, loading, isAuthenticated, router]);
 
   async function loadConversation() {
     try {
@@ -43,7 +44,7 @@ export default function ConversationPage() {
     } catch (error) {
       console.error('Failed to load conversation:', error);
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   }
 
@@ -104,6 +105,10 @@ export default function ConversationPage() {
     });
   }
 
+  if (loading) {
+    return <div className="text-center py-12 text-primary/60">加载中...</div>;
+  }
+
   if (!isAuthenticated) {
     return null;
   }
@@ -133,7 +138,7 @@ export default function ConversationPage() {
 
       {/* Messages */}
       <div className="flex-1 max-w-3xl w-full mx-auto p-4 overflow-y-auto">
-        {loading ? (
+        {loadingData ? (
           <div className="text-center py-xl text-primary/60">加载中...</div>
         ) : messages.length === 0 ? (
           <div className="text-center py-3xl text-primary/60">
@@ -193,11 +198,11 @@ export default function ConversationPage() {
               onChange={(e) => setInput(e.target.value)}
               placeholder="输入您的问题..."
               className="input flex-1"
-              disabled={sending || loading}
+              disabled={sending || loadingData}
             />
             <button
               type="submit"
-              disabled={!input.trim() || sending || loading}
+              disabled={!input.trim() || sending || loadingData}
               className="btn-primary px-6 flex items-center gap-2 cursor-pointer"
             >
               <Send className="w-4 h-4" />
