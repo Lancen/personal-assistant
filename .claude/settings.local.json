@@ -19,7 +19,9 @@
       "Bash(pkill -f \"next dev\")",
       "Bash(pkill *)",
       "Bash(node *)",
-      "Bash(curl -s http://localhost:3001/api/auth/me -H \"Authorization: Bearer test\")"
+      "Bash(curl -s http://localhost:3001/api/auth/me -H \"Authorization: Bearer test\")",
+      "Bash(npx playwright *)",
+      "Bash(pnpm add *)"
     ]
   }
 }
