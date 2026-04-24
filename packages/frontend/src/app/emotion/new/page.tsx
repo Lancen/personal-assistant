@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import EmotionRecordForm, { EmotionFormData } from '@/components/emotion/EmotionRecordForm';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -54,6 +54,12 @@ export default function NewEmotionRecordPage() {
       </div>
 
       <div className="card">
+        <div className="mb-6 flex items-center justify-between">
+          <span className="encrypted-badge">
+            <Lock className="w-3 h-3" />
+            端到端加密存储
+          </span>
+        </div>
         <EmotionRecordForm
           onSubmit={handleSubmit}
           submitText={submitting ? '保存中...' : '保存记录'}

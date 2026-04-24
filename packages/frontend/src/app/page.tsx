@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Brain, MessageSquare, Settings } from 'lucide-react';
+import { Brain, MessageSquare, Settings, Lock } from 'lucide-react';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -63,9 +63,13 @@ export default function Home() {
             <h3 className="text-lg font-semibold mb-sm text-foreground">
               隐私安全
             </h3>
-            <p className="text-primary/70 text-sm">
-              本地数据存储，您的数据完全私密可控
+            <p className="text-primary/70 text-sm mb-3">
+              端到端加密存储，您的数据完全私密可控
             </p>
+            <span className="encrypted-badge mx-auto">
+              <Lock className="w-3 h-3" />
+              客户端加密
+            </span>
           </div>
         </div>
 

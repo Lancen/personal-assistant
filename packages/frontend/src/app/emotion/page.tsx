@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EmotionRecord } from '@personal-assistant/types';
-import { Plus } from 'lucide-react';
+import { Plus, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -68,7 +68,13 @@ export default function EmotionListPage() {
     <div className="px-4 py-6 max-w-4xl mx-auto">
       {/* 标题和新建按钮 */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-foreground">情绪日记</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">情绪日记</h1>
+          <span className="encrypted-badge mt-2">
+            <Lock className="w-3 h-3" />
+            个人数据端对端加密存储
+          </span>
+        </div>
         <Link href="/emotion/new" className="btn-primary flex items-center gap-2 cursor-pointer">
           <Plus className="w-4 h-4" />
           新建记录

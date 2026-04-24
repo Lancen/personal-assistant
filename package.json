@@ -23,9 +23,28 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "drizzle-kit": "^0.30.6"
+    "drizzle-kit": "^0.30.6",
+    "playwright": "^1.59.1"
   },
   "dependencies": {
     "postgres": "^3.4.9"
-  }
+  },
+  "version": "1.0.0",
+  "description": "本项目是一个**个人私有AI智能助手**，集成情绪管理、知识沉淀、任务管理三大核心能力，通过AI辅助个人成长，帮助用户记录生活、提炼价值观、优化决策质量。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lancen/personal-assistant.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Lancen/personal-assistant/issues"
+  },
+  "homepage": "https://github.com/Lancen/personal-assistant#readme"
 }

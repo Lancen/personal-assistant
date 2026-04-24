@@ -10,7 +10,16 @@
       "Bash(pnpm rebuild *)",
       "Bash(git commit *)",
       "Bash(git add *)",
-      "Bash(pnpm drizzle-kit *)"
+      "Bash(pnpm drizzle-kit *)",
+      "Bash(python3 *)",
+      "Bash(curl -s http://localhost:3000/dashboard)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s \"http://localhost:3000/dashboard\")",
+      "Bash(pkill -f \"pnpm dev\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill *)",
+      "Bash(node *)",
+      "Bash(curl -s http://localhost:3001/api/auth/me -H \"Authorization: Bearer test\")"
     ]
   }
 }

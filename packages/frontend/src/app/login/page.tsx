@@ -42,9 +42,15 @@ export default function LoginPage() {
             <p className="text-primary/70">
               登录您的 AI 个人助理
             </p>
+            <div className="mt-4 flex justify-center">
+              <span className="encrypted-badge">
+                <Lock className="w-3 h-3" />
+                客户端数据加密
+              </span>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 encrypted-container p-6">
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-foreground">
                 邮箱

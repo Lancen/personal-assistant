@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { User } from '@personal-assistant/types';
-import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -203,8 +203,8 @@ export default function AdminUsersPage() {
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded text-xs ${
                       user.isActive
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                        ? 'bg-encrypted/10 text-encrypted border border-encrypted/20'
+                        : 'bg-destructive/10 text-destructive border border-destructive/20'
                     }`}>
                       {user.isActive ? '启用' : '禁用'}
                     </span>
@@ -238,9 +238,15 @@ export default function AdminUsersPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="card w-full max-w-md">
-            <h2 className="text-xl font-semibold text-foreground mb-4">
-              {editingUser ? '编辑用户' : '新增用户'}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-foreground">
+                {editingUser ? '编辑用户' : '新增用户'}
+              </h2>
+              <span className="encrypted-badge">
+                <Lock className="w-3 h-3" />
+                加密存储
+              </span>
+            </div>
 
             <div className="space-y-4">
               <div className="space-y-2">

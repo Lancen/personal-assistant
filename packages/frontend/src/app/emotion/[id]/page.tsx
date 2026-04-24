@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EmotionRecord } from '@personal-assistant/types';
 import EmotionRecordForm, { EmotionFormData } from '@/components/emotion/EmotionRecordForm';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -151,6 +151,12 @@ export default function EditEmotionRecordPage() {
       </div>
 
       <div className="card">
+        <div className="mb-6 flex items-center justify-between">
+          <span className="encrypted-badge">
+            <Lock className="w-3 h-3" />
+            端到端加密存储
+          </span>
+        </div>
         <EmotionRecordForm
           initialData={initialData}
           onSubmit={handleSubmit}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { EmotionQuestion, EmotionDailyCheck } from '@personal-assistant/types';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Lock } from 'lucide-react';
 import Link from 'next/link';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -181,11 +181,17 @@ export default function EmotionCheckPage() {
   // 答题中
   return (
     <div className="px-4 py-6 max-w-2xl mx-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <Link href="/dashboard" className="p-2 -ml-2 text-primary hover:text-accent cursor-pointer">
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="text-2xl font-bold text-foreground">情绪健康检测</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard" className="p-2 -ml-2 text-primary hover:text-accent cursor-pointer">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <h1 className="text-2xl font-bold text-foreground">情绪健康检测</h1>
+        </div>
+        <span className="encrypted-badge hidden sm:inline-flex">
+          <Lock className="w-3 h-3" />
+          数据加密
+        </span>
       </div>
 
       {/* 进度条 */}
