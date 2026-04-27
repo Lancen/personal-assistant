@@ -2,17 +2,19 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  testMatch: '**/visual.spec.ts',
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: 0,
+  workers: 1,
   reporter: [
-    ['html'],
+    ['html', { open: 'never' }],
     ['visual-eyes/integrations/playwright'],
   ],
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    viewport: { width: 1920, height: 1080 },
   },
   projects: [
     {

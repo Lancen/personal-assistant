@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {
+        "PLAYWRIGHT_BROWSER_NAME": "chromium",
+        "PLAYWRIGHT_BROWSER_CHANNEL": "msedge",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/lance/Library/Caches/ms-playwright"
+      }
+    }
+  }
+}

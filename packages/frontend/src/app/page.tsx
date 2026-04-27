@@ -1,83 +1,69 @@
-'use client';
-
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { Brain, MessageSquare, Settings, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
-
   return (
-    <main className="min-h-dvh px-4 py-3xl">
-      <div className="max-w-3xl mx-auto text-center">
-        {/* Hero */}
-        <div className="mb-3xl">
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-lg">
-            Personal Assistant
+    <div className="min-h-dvh bg-background">
+      <main className="responsive-container whitespace-2xl">
+        {/* Hero 区域 */}
+        <section className="whitespace-2xl text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+            个人智能助手
           </h1>
-          <p className="text-xl text-primary/70 mb-xl max-w-2xl mx-auto">
-            您的专属 AI 个人助手，随时为您提供帮助
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+            注重隐私的个人成长工具 · 任务管理 · 知识沉淀 · 日历视图
           </p>
-          <div className="flex flex-col sm:flex-row gap-md justify-center">
-            {isAuthenticated ? (
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="btn-primary cursor-pointer text-lg px-8"
-              >
-                进入控制台
-              </button>
-            ) : (
-              <button
-                onClick={() => router.push('/login')}
-                className="btn-primary cursor-pointer text-lg px-8"
-              >
-                开始使用
-              </button>
-            )}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/login" className="btn-primary">开始登录</Link>
+            <button className="btn-secondary">了解更多</button>
           </div>
-        </div>
+        </section>
 
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-lg mb-3xl">
-          <div className="card card-hover">
-            <Brain className="w-10 h-10 mx-auto mb-md text-accent" />
-            <h3 className="text-lg font-semibold mb-sm text-foreground">
-              智能对话
-            </h3>
-            <p className="text-primary/70 text-sm">
-              基于大语言模型，提供流畅自然的对话体验
-            </p>
-          </div>
-          <div className="card card-hover">
-            <MessageSquare className="w-10 h-10 mx-auto mb-md text-accent" />
-            <h3 className="text-lg font-semibold mb-sm text-foreground">
-              多轮对话
-            </h3>
-            <p className="text-primary/70 text-sm">
-              保存历史对话，随时继续之前的话题
-            </p>
-          </div>
-          <div className="card card-hover">
-            <Settings className="w-10 h-10 mx-auto mb-md text-accent" />
-            <h3 className="text-lg font-semibold mb-sm text-foreground">
-              隐私安全
-            </h3>
-            <p className="text-primary/70 text-sm mb-3">
-              端到端加密存储，您的数据完全私密可控
-            </p>
-            <span className="encrypted-badge mx-auto">
-              <Lock className="w-3 h-3" />
-              客户端加密
-            </span>
-          </div>
-        </div>
+        {/* 功能卡片区域 */}
+        <section className="mt-16">
+          <h2 className="text-2xl font-semibold mb-8 text-center">核心功能</h2>
+          <div className="responsive-grid">
+            <div className="soft-card p-6">
+              <div className="mb-4">
+                <div className="encrypted-indicator">
+                  <Lock className="w-3 h-3" />
+                  <span>端到端加密</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">任务管理</h3>
+              <p className="text-muted-foreground">
+                极简任务追踪，聚焦当下，减少焦虑。
+              </p>
+            </div>
 
-        {/* Footer */}
-        <div className="text-sm text-primary/50">
-          <p>Built with Next.js • Tailwind CSS • AI</p>
-        </div>
-      </div>
-    </main>
+            <div className="soft-card p-6">
+              <div className="mb-4">
+                <div className="encrypted-indicator">
+                  <Lock className="w-3 h-3" />
+                  <span>端到端加密</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">知识沉淀</h3>
+              <p className="text-muted-foreground">
+                慢慢积累你的思考，隐私得到完全保护。
+              </p>
+            </div>
+
+            <div className="soft-card p-6">
+              <div className="mb-4">
+                <div className="encrypted-indicator">
+                  <Lock className="w-3 h-3" />
+                  <span>端到端加密</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">日历视图</h3>
+              <p className="text-muted-foreground">
+                月度视图展示所有活动，清晰掌握时间分配。
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

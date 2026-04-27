@@ -19,13 +19,20 @@
     "typecheck:types": "cd packages/types && pnpm typecheck",
     "typecheck:drizzle": "cd packages/drizzle && pnpm typecheck",
     "typecheck:backend": "cd packages/backend && pnpm typecheck",
-    "typecheck:frontend": "cd packages/frontend && pnpm typecheck"
+    "typecheck:frontend": "cd packages/frontend && pnpm typecheck",
+    "eyes:run": "visual-eyes run",
+    "eyes:accept": "visual-eyes accept",
+    "eyes:report": "visual-eyes report",
+    "eyes:doctor": "visual-eyes doctor",
+    "test:visual": "playwright test --config=playwright.visual.config.ts",
+    "test:visual:update": "visual-eyes accept --all"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "concurrently": "^9.1.2",
     "drizzle-kit": "^0.30.6",
-    "playwright": "^1.59.1"
+    "playwright": "^1.59.1",
+    "visual-eyes": "^0.3.0"
   },
   "dependencies": {
     "postgres": "^3.4.9"
@@ -43,7 +50,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Lancen/personal-assistant/issues"
   },

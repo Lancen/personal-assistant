@@ -51,6 +51,23 @@ export interface ConversationSummary {
 }
 
 export const api = {
+  // Generic HTTP methods
+  get: <T>(endpoint: string) => apiRequest<T>(endpoint),
+  post: <T>(endpoint: string, data?: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  patch: <T>(endpoint: string, data?: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  delete: <T>(endpoint: string) =>
+    apiRequest<T>(endpoint, {
+      method: 'DELETE',
+    }),
+
   auth: {
     login: (email: string, password: string) =>
       apiRequest<{ token: string; user: { id: string; email: string; name: string } }>('/api/auth/login', {

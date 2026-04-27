@@ -1,66 +1,73 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter, usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
-import BottomNav from './BottomNav';
+import TopNav from './TopNav';
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+// 不需要侧边栏布局的公开页面
+const PUBLIC_PATHS = ['/', '/login'];
+
 export default function AppLayout({ children }: AppLayoutProps) {
   const { isAuthenticated, loading } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // 如果正在加载认证状态，仍然渲染布局，避免底部导航消失
-  // 只有在确定未认证时才不渲染布局
-  if (!loading && !isAuthenticated) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // 判断是否为公开页面
+  const isPublicPage = PUBLIC_PATHS.includes(pathname);
+
+  // 未认证时重定向到登录页（公开页面除外）
+  useEffect(() => {
+    if (!loading && !isAuthenticated && !isPublicPage) {
+      router.push('/login');
+    }
+  }, [loading, isAuthenticated, pathname, router, isPublicPage]);
+
+  // 公开页面直接渲染内容，无侧边栏布局
+  if (isPublicPage) {
     return <>{children}</>;
   }
 
+  // 加载中显示简单的加载状态
+  if (loading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">加载中...</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* PC端：左侧固定侧边栏 (>= 768px 显示，移动端隐藏) */}
-      {/* 使用自定义 CSS 媒体查询确保规则存在，不依赖 Tailwind JIT 自动生成 */}
-      <style jsx>{`
-        .sidebar-layout {
-          display: none;
-        }
-        @media (min-width: 768px) {
-          .sidebar-layout {
-            display: block;
-          }
-        }
-        .main-content {
-        }
-        @media (min-width: 768px) {
-          .main-content {
-            margin-left: 14rem; /* w-56 = 14rem */
-          }
-        }
-      `}</style>
-      <div className="sidebar-layout w-56 fixed left-0 top-0 h-screen border-r border-border bg-background z-30">
-        <Sidebar />
-      </div>
-
-      {/* 主内容区域 */}
-      {/* - PC端：左边空出侧边栏宽度 */}
-      {/* - 移动端：底部空出导航栏高度 + 安全区域 */}
-      {/* - PC端：不需要底部留白 */}
-      <div className="main-content">
-        <main className="pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0">
-          {children}
-        </main>
-      </div>
-
-      {/* 移动端底部导航 - 固定在屏幕最底部，不跟随滚动 (< 768px 显示，PC端隐藏) */}
-      {(loading || isAuthenticated) && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-background border-t border-border">
-          <div className="pb-[env(safe-area-inset-bottom)]">
-            <BottomNav />
-          </div>
-        </div>
+    <div className="min-h-dvh bg-background flex">
+      {/* 移动端侧边栏遮罩 */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
+
+      {/* 侧边栏 */}
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+      {/* 主内容区 */}
+      <div className="flex-1 flex flex-col min-h-dvh">
+        {/* 顶部导航栏 */}
+        <TopNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+        {/* 页面内容 */}
+        <main className="flex-1">{children}</main>
+
+        {/* 页脚 */}
+        <footer className="border-t border-border py-4 px-6">
+          <p className="text-center text-sm text-muted-foreground">
+            UIUE · 个人智能助手 · 注重隐私的个人成长工具
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }

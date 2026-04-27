@@ -68,64 +68,86 @@ export interface User {
   createdAt: string;
 }
 
-// 情绪记录
-export interface EmotionRecord {
+// 任务四象限类型
+export type Quadrant = 'important-urgent' | 'important-not-urgent' | 'urgent-not-important' | 'not-important-not-urgent';
+
+// 任务
+export interface Task {
   id: string;
+  taskId: string;
   userId: string;
-  event: string;
-  emotionType?: string;
-  emotionIntensity?: number;
-  need: string;
-  aiRecognizedEmotion?: string;
-  aiRecognizedIntensity?: number;
-  recordDate: string;
+  title: string;
+  description?: string;
+  quadrant: Quadrant;
+  completed: boolean;
+  createdAt: string;
+  completedAt?: string;
+  linkedNoteId?: string;
+  createdAtTs: string;
+  updatedAt: string;
+}
+
+// 创建任务请求
+export interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  quadrant: Quadrant;
+}
+
+// 更新任务请求
+export interface UpdateTaskRequest {
+  title?: string;
+  description?: string;
+  quadrant?: Quadrant;
+  completed?: boolean;
+}
+
+// 笔记
+export interface Note {
+  id: string;
+  noteId: string;
+  userId: string;
+  title: string;
+  content: string;
+  tags: string[];
+  isPinned: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-// 情绪检测问题
-export interface EmotionQuestion {
-  id: number;
-  dimension: string;
-  questionText: string;
+// 创建笔记请求
+export interface CreateNoteRequest {
+  title: string;
+  content: string;
+  tags: string[];
+  isPinned: boolean;
 }
 
-// 每日情绪检测结果
-export interface EmotionDailyCheck {
-  id: number;
-  userId: string;
-  checkDate: string;
-  totalScore: number;
-  isBelowThreshold: boolean;
-  questions: Array<{
-    questionId: number;
-    questionText: string;
-    dimension: string;
-    score: number;
-  }>;
-  createdAt: string;
+// 更新笔记请求
+export interface UpdateNoteRequest {
+  title?: string;
+  content?: string;
+  tags?: string[];
+  isPinned?: boolean;
 }
 
-// 情绪分析结果
-export interface EmotionAnalysisResult {
-  trendData: Array<{
-    date: string;
-    score: number;
-  }>;
-  emotionDistribution: Array<{
-    emotion: string;
-    count: number;
-    percentage: number;
-  }>;
-  aiSummary: {
-    commonTriggers: string[];
-    conclusion: string;
-    suggestions: string[];
-  };
+// 日历事件（聚合跨模块活动）
+export interface CalendarEvent {
+  id: string;
+  date: string;
+  title: string;
+  type: 'task' | 'note';
 }
 
-// AI情绪识别结果
-export interface EmotionRecognitionResult {
-  emotionType: string;
-  intensity: number;
+// 任务统计
+export interface TaskStats {
+  total: number;
+  completed: number;
+  pending: number;
+}
+
+// 笔记统计
+export interface NoteStats {
+  total: number;
+  tags: number;
 }

@@ -23,6 +23,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 开发模式：默认登录，方便测试 UI 布局
+    if (process.env.NODE_ENV === 'development') {
+      const mockUser = { id: '1', email: 'test@example.com', name: '测试用户' };
+      setUser(mockUser);
+      setLoading(false);
+      return;
+    }
+
     // Check for saved token on mount, verify it with backend
     const token = localStorage.getItem('auth_token');
     const savedUser = localStorage.getItem('auth_user');

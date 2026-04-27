@@ -5,8 +5,8 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth';
 import adminUserRoutes from './routes/adminUsers';
-import emotionRoutes from './routes/emotion';
-import emotionCheckRoutes from './routes/emotionCheck';
+import taskRoutes from './routes/tasks';
+import noteRoutes from './routes/notes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,8 +23,8 @@ app.get('/api/health', (req, res) => {
 // API 路由
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminUserRoutes);
-app.use('/api/emotion', emotionRoutes);
-app.use('/api/emotion-check', emotionCheckRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/notes', noteRoutes);
 
 // 启动服务器
 app.listen(PORT, () => {

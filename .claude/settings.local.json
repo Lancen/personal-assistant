@@ -21,7 +21,29 @@
       "Bash(node *)",
       "Bash(curl -s http://localhost:3001/api/auth/me -H \"Authorization: Bearer test\")",
       "Bash(npx playwright *)",
-      "Bash(pnpm add *)"
+      "Bash(pnpm add *)",
+      "Bash(rm -f packages/backend/src/services/emotion*)",
+      "Bash(rm -f packages/backend/src/controllers/emotion*)",
+      "Bash(rm -f packages/backend/src/routes/emotion*)",
+      "Bash(rm -f packages/backend/src/controllers/emotion*.ts)",
+      "Bash(rm -f packages/backend/src/routes/emotion*.ts)",
+      "Bash(pnpm build *)",
+      "Bash(npx eslint *)",
+      "Bash(pnpm generate *)",
+      "Bash(yes)",
+      "Bash(npx @playwright/mcp@latest --help)",
+      "mcp__playwright__browser_navigate",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(pnpm typecheck:frontend *)",
+      "Skill(playwright-cli)",
+      "Bash(pnpm exec *)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/dashboard)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }
