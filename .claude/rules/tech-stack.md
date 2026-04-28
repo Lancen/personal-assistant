@@ -63,7 +63,7 @@
 ```
 
 **类型定义：**
-所有响应结构在 `@stock/shared` 包中定义，前后端共享：
+所有响应结构在 `@personal-assistant/types` 包中定义，前后端共享：
 - `ApiResponse<T>` - 统一 API 响应（联合类型）
 - `SuccessResponse<T>` - 成功响应
 - `ErrorResponse` - 失败响应
@@ -87,4 +87,4 @@
 
 - 不要随意新增依赖，必须明确要求才能安装
 - 优先使用轻量级、维护活跃的包
-- 共享类型使用 `@stock/shared`，前后端不要重复定义
+- 共享类型使用 `@personal-assistant/types`，前后端不要重复定义
