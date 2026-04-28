@@ -32,6 +32,11 @@ context: |
   测试: 保留测试文件，提交前必须通过 pnpm lint 和 pnpm typecheck
   API 响应: 统一结构（success/error/paginated），分页默认 20 条/页，类型定义在 @personal-assistant/types
 
+  ## 测试策略
+  E2E: Playwright（配置在根目录 playwright.config.ts，测试目录 ./e2e），覆盖前端 UI 交互流程
+  后端 API: Vitest + supertest，对每个 API 端点编写集成测试，验证请求/响应结构和错误处理
+  原则: 后端新 API 必须有对应的 API 集成测试，前端关键用户流程必须有 E2E 测试
+
   ## 行为准则
   - 编码前先思考：不假设，不隐藏困惑，揭示权衡
   - 简洁优先：用最少代码解决问题，不做猜测性设计
