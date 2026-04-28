@@ -1,14 +1,42 @@
 schema: spec-driven
 
-# 输出语言设置
-language: zh-CN
-
 # Project context
 context: |
-  技术栈: TypeScript, React 19, Next.js 16, Express.js, Node.js
-  项目类型: 个人助手 Monorepo 项目
-  代码规范: 使用 ESLint，遵循 conventional commits
-  架构: 前后端分离，types 包共享类型定义
+  ## 领域知识
+  项目: 个人私有 AI 智能助手，集成情绪管理、知识沉淀、任务管理三大核心能力
+  目标用户: 追求自我成长的知识工作者、关注心理健康的个人成长实践者、需要系统化沉淀知识的学习者
+  核心痛点:
+    - 缺少私密、端到端加密的个人记录工具，集中管理情绪、想法、任务
+    - 决策时容易被情绪绑架，缺少客观提醒机制
+    - 读书笔记零散，无法追踪长时间跨度的认知变化
+    - 零散想法无法有效聚合沉淀，容易丢失
+
+  ## 技术栈
+  架构: Monorepo 前后端分离，pnpm workspace 管理
+  包管理: pnpm（禁止 npm/yarn）
+  数据访问: 前端只允许通过 API 获取后端数据，禁止直接访问数据库
+  前端: Next.js 16.2.4 + React 19 + TypeScript（严格模式）+ Tailwind CSS v4 + App Router
+  后端: Express.js 4.x + TypeScript（严格模式）+ PostgreSQL + Drizzle ORM + pg + Redis + RESTful API
+  共享包: @personal-assistant/types（前后端共享类型定义）
+  运行地址: 前端 localhost:3000，后端 localhost:3001
+  常用命令:
+    - pnpm install / pnpm dev / pnpm dev:backend / pnpm dev:frontend
+    - pnpm build（types → drizzle → backend → frontend）
+    - pnpm lint / pnpm typecheck
+
+  ## 代码规范
+  TypeScript: 禁止 any 类型，启用严格模式，所有变量和函数需正确类型标注
+  命名: 组件 PascalCase，函数和变量 camelCase
+  Git: conventional commits（feat/fix/docs/refactor/style/test），主分支 main，PR 合并
+  安全: 禁止修改 .env、禁止硬编码敏感信息、密码 bcrypt 哈希、token 正确验证、输入验证防注入
+  测试: 保留测试文件，提交前必须通过 pnpm lint 和 pnpm typecheck
+  API 响应: 统一结构（success/error/paginated），分页默认 20 条/页，类型定义在 @personal-assistant/types
+
+  ## 行为准则
+  - 编码前先思考：不假设，不隐藏困惑，揭示权衡
+  - 简洁优先：用最少代码解决问题，不做猜测性设计
+  - 精准修改：只改必须改的，不重构没坏的东西
+  - 目标驱动：定义成功标准，循环直到验证通过
 
 # 全局规则
 rules:
@@ -34,7 +62,7 @@ rules:
     - 任务描述要具体，便于执行
     - 为每个验收标准创建对应的测试任务
 
-  spec:
+  specs:
     - 所有技术规格文档必须使用中文
     - 需要包含清晰的数据结构、API 设计和实现细节
     - 使用 Given/When/Then 格式编写场景
