@@ -151,3 +151,128 @@ export interface NoteStats {
   total: number;
   tags: number;
 }
+
+// 情绪记录
+export interface EmotionRecord {
+  recordId: string;
+  userId: string;
+  event: string;
+  emotionType: string;
+  emotionIntensity: number;
+  need: string;
+  aiRecognizedEmotion?: string;
+  aiRecognizedIntensity?: number;
+  recordDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 创建情绪记录请求
+export interface CreateEmotionRecordRequest {
+  event: string;
+  emotionType: string;
+  emotionIntensity: number;
+  need: string;
+  recordDate?: string;
+}
+
+// 更新情绪记录请求
+export interface UpdateEmotionRecordRequest {
+  event?: string;
+  emotionType?: string;
+  emotionIntensity?: number;
+  need?: string;
+  aiRecognizedEmotion?: string;
+  aiRecognizedIntensity?: number;
+}
+
+// 情绪检测问题
+export interface EmotionQuestion {
+  id: number;
+  dimension: string;
+  questionText: string;
+  isActive: boolean;
+}
+
+// 情绪每日检测
+export interface EmotionDailyCheck {
+  checkId: string;
+  userId: string;
+  checkDate: string;
+  totalScore: number;
+  questionsJson: EmotionCheckQuestion[];
+  isBelowThreshold: boolean;
+  createdAt: string;
+}
+
+// 检测问题（含答案）
+export interface EmotionCheckQuestion {
+  id: number;
+  dimension: string;
+  questionText: string;
+  score?: number;
+}
+
+// 情绪检测状态
+export interface EmotionCheckStatus {
+  completed: boolean;
+  checkDate: string | null;
+  totalScore: number | null;
+}
+
+// 情绪检测结果
+export interface EmotionCheckResult {
+  checkId: string;
+  totalScore: number;
+  isBelowThreshold: boolean;
+  suggestion?: string;
+  dimensionScores: Record<string, number>;
+}
+
+// AI 识别请求
+export interface AIRecognizeRequest {
+  text: string;
+}
+
+// AI 识别结果
+export interface AIRecognizeResult {
+  emotionType: string;
+  intensity: number;
+  confidence: number;
+}
+
+// 用户设置
+export interface UserSettings {
+  aiProvider: string;
+  aiModel: string;
+  hasApiKey: boolean;
+  emotionThreshold: number;
+  notificationEnabled: boolean;
+}
+
+// 更新用户设置请求
+export interface UpdateUserSettingsRequest {
+  aiProvider?: string;
+  aiModel?: string;
+  apiKey?: string;
+  emotionThreshold?: number;
+  notificationEnabled?: boolean;
+}
+
+// AI 模型选项
+export interface AIModelOption {
+  value: string;
+  label: string;
+}
+
+// AI 模型选项映射
+export const AI_MODEL_OPTIONS: Record<string, AIModelOption[]> = {
+  zhipu: [
+    { value: 'glm-4', label: 'GLM-4' },
+    { value: 'glm-4-flash', label: 'GLM-4 Flash' },
+  ],
+  deepseek: [
+    { value: 'deepseek-chat', label: 'DeepSeek Chat' },
+    { value: 'deepseek-reasoner', label: 'DeepSeek Reasoner' },
+  ],
+};

@@ -67,6 +67,11 @@ export const api = {
     apiRequest<T>(endpoint, {
       method: 'DELETE',
     }),
+  put: <T>(endpoint: string, data?: unknown) =>
+    apiRequest<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
 
   auth: {
     login: (email: string, password: string) =>
@@ -97,6 +102,50 @@ export const api = {
     delete: (id: string) => apiRequest<void>(`/api/conversations/${id}`, {
       method: 'DELETE',
     }),
+  },
+
+  emotion: {
+    records: {
+      list: (page?: number, pageSize?: number) =>
+        api.get<{ success: true; data: any[]; pagination: any }>(
+          `/api/emotion/records?page=${page || 1}&pageSize=${pageSize || 20}`
+        ),
+      get: (id: string) =>
+        api.get<{ success: true; data: any }>(`/api/emotion/records/${id}`),
+      create: (data: { event: string; emotionType: string; emotionIntensity: number; need: string; recordDate?: string }) =>
+        api.post<{ success: true; data: any }>('/api/emotion/records', data),
+      update: (id: string, data: { event?: string; emotionType?: string; emotionIntensity?: number; need?: string; aiRecognizedEmotion?: string; aiRecognizedIntensity?: number }) =>
+        api.put<{ success: true; data: any }>(`/api/emotion/records/${id}`, data),
+      delete: (id: string) =>
+        api.delete<{ success: true }>(`/api/emotion/records/${id}`),
+    },
+  },
+
+  emotionCheck: {
+    status: () =>
+      api.get<{ success: true; data: any }>('/api/emotion-check/status'),
+    generate: () =>
+      api.post<{ success: true; data: any }>('/api/emotion-check/generate'),
+    submit: (answers: { questionId: number; score: number }[]) =>
+      api.post<{ success: true; data: any }>('/api/emotion-check/submit', { answers }),
+    history: (page?: number, pageSize?: number) =>
+      api.get<{ success: true; data: any[]; pagination: any }>(
+        `/api/emotion-check/history?page=${page || 1}&pageSize=${pageSize || 20}`
+      ),
+  },
+
+  ai: {
+    recognize: (text: string) =>
+      api.post<{ success: true; data: any }>('/api/ai/recognize', { text }),
+  },
+
+  settings: {
+    get: () =>
+      api.get<{ success: true; data: any }>('/api/settings'),
+    update: (data: { aiProvider?: string; aiModel?: string; apiKey?: string; emotionThreshold?: number; notificationEnabled?: boolean }) =>
+      api.put<{ success: true; data: any }>('/api/settings', data),
+    testAI: (data: { aiProvider: string; aiModel: string; apiKey: string }) =>
+      api.post<{ success: true; data: any }>('/api/settings/test-ai', data),
   },
 };
 

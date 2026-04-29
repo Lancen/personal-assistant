@@ -1,4 +1,4 @@
-import { pgTable, serial, text, boolean, timestamp, date, integer, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, boolean, timestamp, date, integer, jsonb, numeric } from 'drizzle-orm/pg-core';
 
 /**
  * 用户表 - 存储系统用户信息
@@ -60,6 +60,54 @@ export const tasks = pgTable('tasks', {
   createdAtTs: timestamp('created_at_ts', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+export const emotionRecords = pgTable('emotion_records', {
+  id: serial('id').primaryKey(),
+  recordId: text('record_id').notNull().unique(),
+  userId: text('user_id').notNull(),
+  event: text('event').notNull(),
+  emotionType: text('emotion_type').notNull(),
+  emotionIntensity: numeric('emotion_intensity', { precision: 4, scale: 2 }).notNull(),
+  need: text('need').notNull(),
+  aiRecognizedEmotion: text('ai_recognized_emotion'),
+  aiRecognizedIntensity: numeric('ai_recognized_intensity', { precision: 4, scale: 2 }),
+  recordDate: date('record_date').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+export const emotionQuestions = pgTable('emotion_questions', {
+  id: serial('id').primaryKey(),
+  dimension: text('dimension').notNull(),
+  questionText: text('question_text').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const emotionDailyChecks = pgTable('emotion_daily_checks', {
+  id: serial('id').primaryKey(),
+  checkId: text('check_id').notNull().unique(),
+  userId: text('user_id').notNull(),
+  checkDate: date('check_date').notNull(),
+  totalScore: integer('total_score').notNull(),
+  questionsJson: jsonb('questions_json').notNull(),
+  isBelowThreshold: boolean('is_below_threshold').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+});
+
+export const userSettings = pgTable('user_settings', {
+  id: serial('id').primaryKey(),
+  userId: text('user_id').notNull().unique(),
+  aiProvider: text('ai_provider').notNull().default('zhipu'),
+  aiModel: text('ai_model').notNull().default('glm-4'),
+  aiApiKey: text('ai_api_key'),
+  emotionThreshold: integer('emotion_threshold').notNull().default(25),
+  notificationEnabled: boolean('notification_enabled').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 /**

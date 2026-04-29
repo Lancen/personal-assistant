@@ -8,6 +8,7 @@ import {
   BookOpen,
   Calendar,
   Settings,
+  Heart,
   Bell,
   User,
   Menu,
@@ -19,9 +20,13 @@ import {
   Info,
   Shield,
   LogOut,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api';
+import { AI_MODEL_OPTIONS } from '@personal-assistant/types';
 
 // 设置分组
 interface SettingSection {
@@ -40,11 +45,12 @@ interface SettingItem {
 }
 
 const navItems = [
-  { id: 'dashboard', label: '仪表盘', icon: LayoutDashboard, active: false },
-  { id: 'tasks', label: '任务管理', icon: CheckSquare, active: false },
-  { id: 'notes', label: '知识笔记', icon: BookOpen, active: false },
-  { id: 'calendar', label: '日历', icon: Calendar, active: false },
-  { id: 'settings', label: '设置', icon: Settings, active: true },
+  { id: 'dashboard', label: '仪表盘', icon: LayoutDashboard, active: false, href: '/dashboard' },
+  { id: 'emotion', label: '情绪日记', icon: Heart, active: false, href: '/emotion' },
+  { id: 'tasks', label: '任务管理', icon: CheckSquare, active: false, href: '/tasks' },
+  { id: 'notes', label: '知识笔记', icon: BookOpen, active: false, href: '/notes' },
+  { id: 'calendar', label: '日历', icon: Calendar, active: false, href: '/calendar' },
+  { id: 'settings', label: '设置', icon: Settings, active: true, href: '/settings' },
 ];
 
 export default function SettingsPage() {
@@ -57,10 +63,84 @@ export default function SettingsPage() {
     notifications: true,
     autoSave: true,
   });
+  const [aiSettings, setAiSettings] = useState({
+    aiProvider: 'zhipu',
+    aiModel: 'glm-4',
+    apiKey: '',
+    emotionThreshold: 25,
+    notificationEnabled: true,
+    hasApiKey: false,
+  });
+  const [aiLoading, setAiLoading] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // 加载 AI 设置
+  useState(() => {
+    api.settings.get().then(res => {
+      if (res.success && res.data) {
+        setAiSettings(prev => ({
+          ...prev,
+          aiProvider: res.data.aiProvider || 'zhipu',
+          aiModel: res.data.aiModel || 'glm-4',
+          emotionThreshold: res.data.emotionThreshold ?? 25,
+          notificationEnabled: res.data.notificationEnabled ?? true,
+          hasApiKey: res.data.hasApiKey ?? false,
+        }));
+      }
+    }).catch(() => {});
+  });
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings({ ...settings, [key]: !settings[key] });
   };
+
+  async function handleSaveAISettings() {
+    setSaving(true);
+    try {
+      const data: any = {
+        aiProvider: aiSettings.aiProvider,
+        aiModel: aiSettings.aiModel,
+        emotionThreshold: aiSettings.emotionThreshold,
+        notificationEnabled: aiSettings.notificationEnabled,
+      };
+      if (aiSettings.apiKey) {
+        data.apiKey = aiSettings.apiKey;
+      }
+      const res = await api.settings.update(data);
+      if (res.success) {
+        setAiSettings(prev => ({ ...prev, hasApiKey: res.data?.hasApiKey ?? prev.hasApiKey, apiKey: '' }));
+        alert('保存成功');
+      }
+    } catch {
+      alert('保存失败');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleTestConnection() {
+    if (!aiSettings.apiKey && !aiSettings.hasApiKey) {
+      alert('请先输入 API Key');
+      return;
+    }
+    setAiLoading(true);
+    setTestResult(null);
+    try {
+      const res = await api.settings.testAI({
+        aiProvider: aiSettings.aiProvider,
+        aiModel: aiSettings.aiModel,
+        apiKey: aiSettings.apiKey || 'test',
+      });
+      if (res.success && res.data) {
+        setTestResult({ success: res.data.success, message: res.data.message });
+      }
+    } catch {
+      setTestResult({ success: false, message: '连接测试失败' });
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   const sections: SettingSection[] = [
     {
@@ -331,6 +411,51 @@ export default function SettingsPage() {
         {/* 设置内容 */}
         <main className="flex-1 p-4 lg:p-6">
           <div className="max-w-3xl mx-auto space-y-6">
+            {/* AI 助手配置 */}
+            <div className="soft-card p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5 text-accent" />
+                <h2 className="text-xl font-semibold text-foreground">AI 助手</h2>
+              </div>
+              <p className="text-muted-foreground mb-6">配置 AI 情绪识别服务</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="form-label block text-sm font-medium text-foreground mb-2">服务商</label>
+                  <select value={aiSettings.aiProvider} onChange={e => { const provider = e.target.value; const models = AI_MODEL_OPTIONS[provider] || []; setAiSettings(prev => ({ ...prev, aiProvider: provider, aiModel: models[0]?.value || '' })); }} className="form-input w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    <option value="zhipu">智谱 AI</option>
+                    <option value="deepseek">DeepSeek</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label block text-sm font-medium text-foreground mb-2">模型</label>
+                  <select value={aiSettings.aiModel} onChange={e => setAiSettings(prev => ({ ...prev, aiModel: e.target.value }))} className="form-input w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    {(AI_MODEL_OPTIONS[aiSettings.aiProvider] || []).map(m => (<option key={m.value} value={m.value}>{m.label}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label block text-sm font-medium text-foreground mb-2">API Key</label>
+                  <input type="password" value={aiSettings.apiKey} onChange={e => setAiSettings(prev => ({ ...prev, apiKey: e.target.value }))} placeholder={aiSettings.hasApiKey ? '已设置（留空则不修改）' : '输入你的 API Key'} className="form-input w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50" />
+                </div>
+                <div className="flex items-center gap-3">
+                  <button onClick={handleTestConnection} disabled={aiLoading} className="btn-secondary py-2 px-4 text-sm flex items-center gap-2">
+                    {aiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}测试连接
+                  </button>
+                  {testResult && <span className={`text-sm ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>{testResult.success ? '✓' : '✗'} {testResult.message}</span>}
+                </div>
+                <div>
+                  <label className="form-label block text-sm font-medium text-foreground mb-2">情绪检测阈值: <span className="text-primary font-bold">{aiSettings.emotionThreshold}</span></label>
+                  <input type="range" min="10" max="45" step="1" value={aiSettings.emotionThreshold} onChange={e => setAiSettings(prev => ({ ...prev, emotionThreshold: parseInt(e.target.value) }))} className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary" />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>10 灵敏</span><span>25 默认</span><span>45 宽松</span></div>
+                </div>
+                <div className="flex items-center justify-between gap-4 py-2">
+                  <div><label className="text-sm font-medium text-foreground">情绪检测提醒</label><p className="text-xs text-muted-foreground">每日提醒完成情绪检测</p></div>
+                  <button className={`relative w-12 h-6 rounded-full transition-colors ${aiSettings.notificationEnabled ? 'bg-primary' : 'bg-muted'}`} onClick={() => setAiSettings(prev => ({ ...prev, notificationEnabled: !prev.notificationEnabled }))}>
+                    <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${aiSettings.notificationEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+                <button onClick={handleSaveAISettings} disabled={saving} className="btn-primary py-2 px-6 text-sm w-full disabled:opacity-50">{saving ? '保存中...' : '保存 AI 配置'}</button>
+              </div>
+            </div>
         {sections.map((section) => (
           <div key={section.id} className="soft-card p-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">

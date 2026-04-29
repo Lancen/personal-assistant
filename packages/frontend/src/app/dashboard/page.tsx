@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Calendar,
   CheckSquare,
   BookOpen,
   Settings,
+  Heart,
   Bell,
   User,
   Menu,
@@ -18,68 +19,11 @@ import {
   LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
-
-const stats = [
-  {
-    id: 1,
-    title: '今日任务完成',
-    value: '8/12',
-    change: '+12%',
-    trend: 'up',
-    icon: CheckSquare,
-  },
-  {
-    id: 2,
-    title: '知识笔记',
-    value: '46',
-    change: '+3',
-    trend: 'up',
-    icon: BookOpen,
-  },
-  {
-    id: 3,
-    title: '专注时长',
-    value: '2.5h',
-    change: '+18%',
-    trend: 'up',
-    icon: TrendingUp,
-  },
-  {
-    id: 4,
-    title: '连续打卡',
-    value: '7天',
-    change: '+1',
-    trend: 'up',
-    icon: TrendingUp,
-  },
-];
-
-const recentActivities = [
-  {
-    id: 1,
-    type: 'task',
-    title: '完成项目设计文档',
-    time: '10分钟前',
-    status: 'completed',
-  },
-  {
-    id: 2,
-    type: 'note',
-    title: '添加新笔记：成长思考',
-    time: '2小时前',
-    status: 'completed',
-  },
-  {
-    id: 3,
-    type: 'task',
-    title: '准备周会分享材料',
-    time: '明天',
-    status: 'pending',
-  },
-];
+import { api } from '@/lib/api';
 
 const navItems = [
   { id: 'dashboard', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
+  { id: 'emotion', label: '情绪日记', icon: Heart, href: '/emotion' },
   { id: 'tasks', label: '任务管理', icon: CheckSquare, href: '/tasks' },
   { id: 'notes', label: '知识笔记', icon: BookOpen, href: '/notes' },
   { id: 'calendar', label: '日历', icon: Calendar, href: '/calendar' },
@@ -89,6 +33,39 @@ const navItems = [
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [taskStats, setTaskStats] = useState<{ total: number; completed: number } | null>(null);
+  const [noteCount, setNoteCount] = useState<number>(0);
+  const [emotionRecordCount, setEmotionRecordCount] = useState<number>(0);
+  const [checkStatus, setCheckStatus] = useState<any>(null);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  async function loadDashboardData() {
+    try {
+      const [tasksRes, notesRes, emotionRes, checkRes] = await Promise.allSettled([
+        api.get<any>('/api/tasks?page=1&pageSize=1'),
+        api.get<any>('/api/notes?page=1&pageSize=1'),
+        api.emotion.records.list(1, 1),
+        api.emotionCheck.status(),
+      ]);
+      if (tasksRes.status === 'fulfilled' && tasksRes.value.success) {
+        setTaskStats({ total: tasksRes.value.pagination?.total ?? 0, completed: 0 });
+      }
+      if (notesRes.status === 'fulfilled' && notesRes.value.success) {
+        setNoteCount(notesRes.value.pagination?.total ?? 0);
+      }
+      if (emotionRes.status === 'fulfilled' && emotionRes.value.success) {
+        setEmotionRecordCount(emotionRes.value.pagination?.total ?? 0);
+      }
+      if (checkRes.status === 'fulfilled' && checkRes.value.success) {
+        setCheckStatus(checkRes.value.data);
+      }
+    } catch {
+      // 忽略加载失败
+    }
+  }
 
   return (
     <div className="min-h-dvh bg-background flex">
@@ -238,171 +215,65 @@ export default function DashboardPage() {
 
           {/* KPI 统计卡片 */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat) => {
-              const Icon = stat.icon;
-              const isUp = stat.trend === 'up';
-              return (
-                <div key={stat.id} className="soft-card p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </span>
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-primary" />
-                    </div>
-                  </div>
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">
-                        {stat.value}
-                      </p>
-                      <div
-                        className={`flex items-center gap-1 text-xs font-medium ${
-                          isUp ? 'text-green-600' : 'text-red-600'
-                        }`}
-                      >
-                        {isUp ? (
-                          <TrendingUp className="w-3 h-3" />
-                        ) : (
-                          <TrendingDown className="w-3 h-3" />
-                        )}
-                        <span>{stat.change} 较上周</span>
-                      </div>
-                    </div>
-                  </div>
+            <div className="soft-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-muted-foreground">今日任务完成</span>
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <CheckSquare className="w-5 h-5 text-primary" />
                 </div>
-              );
-            })}
-          </div>
-
-          {/* 最近活动 */}
-          <div className="lg:col-span-3 soft-card p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              最近活动
-            </h3>
-            <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-                >
-                  <div
-                    className={`w-2 h-2 mt-2 rounded-full shrink-0 ${
-                      activity.status === 'completed'
-                        ? 'bg-green-500'
-                        : 'bg-amber-500'
-                    }`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {activity.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {activity.time}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              </div>
+              <p className="text-2xl font-bold text-foreground">{taskStats ? `${taskStats.completed}/${taskStats.total}` : '--'}</p>
             </div>
-            <Link
-              href="/tasks"
-              className="mt-4 block text-center text-sm text-accent hover:underline underline-offset-2 transition-colors"
-            >
-              查看全部活动
-            </Link>
+            <div className="soft-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-muted-foreground">知识笔记</span>
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{noteCount || '--'}</p>
+            </div>
+            <div className="soft-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-muted-foreground">情绪记录</span>
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{emotionRecordCount || '--'}</p>
+            </div>
+            <div className="soft-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-muted-foreground">专注时长</span>
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+              <p className="text-2xl font-bold text-foreground">--</p>
+            </div>
           </div>
 
-          {/* 今日任务表格 */}
+          {/* 情绪状态卡片 */}
           <div className="soft-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">
-                今日任务
-              </h3>
-              <Link href="/tasks" className="btn-primary py-2 px-4 text-sm">
-                添加任务
-              </Link>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                      任务名称
-                    </th>
-                    <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                      优先级
-                    </th>
-                    <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">
-                      状态
-                    </th>
-                    <th className="text-right py-3 px-2 text-sm font-medium text-muted-foreground">
-                      操作
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-2 text-sm text-foreground">
-                      晨间情绪记录
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        低
-                      </span>
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        已完成
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <button className="text-sm text-accent hover:underline">
-                        查看
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-2 text-sm text-foreground">
-                      整理今日知识笔记
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                        中
-                      </span>
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent-foreground">
-                        进行中
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <button className="text-sm text-accent hover:underline">
-                        查看
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-2 text-sm text-foreground">
-                      准备周会分享
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        高
-                      </span>
-                    </td>
-                    <td className="py-3 px-2">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                        未开始
-                      </span>
-                    </td>
-                    <td className="py-3 px-2 text-right">
-                      <button className="text-sm text-accent hover:underline">
-                        查看
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-1">情绪状态</h3>
+                {checkStatus?.completed ? (
+                  <p className="text-sm text-muted-foreground">今日检测 {checkStatus.totalScore}/50</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">今日已记录 {emotionRecordCount} 条情绪</p>
+                )}
+              </div>
+              {!checkStatus?.completed && (
+                <Link href="/emotion/check" className="btn-primary py-2 px-4 text-sm">
+                  点击完成今日检测
+                </Link>
+              )}
+              {checkStatus?.completed && (
+                <Link href="/emotion" className="btn-secondary py-2 px-4 text-sm">
+                  查看情绪日记
+                </Link>
+              )}
             </div>
           </div>
         </main>

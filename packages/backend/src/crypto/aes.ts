@@ -1,0 +1,49 @@
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
+
+const ALGORITHM = 'aes-256-gcm';
+const IV_LENGTH = 16;
+const AUTH_TAG_LENGTH = 16;
+
+function getKey(): Buffer {
+  const key = process.env.ENCRYPTION_KEY;
+  if (!key) {
+    throw new Error('ENCRYPTION_KEY 环境变量未配置');
+  }
+  // AES-256 需要 32 字节密钥
+  const keyBuffer = Buffer.from(key, 'hex');
+  if (keyBuffer.length !== 32) {
+    throw new Error('ENCRYPTION_KEY 必须是 64 个十六进制字符（32 字节）');
+  }
+  return keyBuffer;
+}
+
+export function encrypt(plaintext: string): string {
+  const key = getKey();
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
+
+  let encrypted = cipher.update(plaintext, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const authTag = cipher.getAuthTag().toString('hex');
+
+  return `${iv.toString('hex')}:${authTag}:${encrypted}`;
+}
+
+export function decrypt(ciphertext: string): string {
+  const key = getKey();
+  const parts = ciphertext.split(':');
+  if (parts.length !== 3) {
+    throw new Error('密文格式无效');
+  }
+
+  const [ivHex, authTagHex, encryptedHex] = parts;
+  const iv = Buffer.from(ivHex, 'hex');
+  const authTag = Buffer.from(authTagHex, 'hex');
+  const decipher = createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
+  decipher.setAuthTag(authTag);
+
+  let decrypted = decipher.update(encryptedHex, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+
+  return decrypted;
+}

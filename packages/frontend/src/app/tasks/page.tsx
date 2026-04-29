@@ -19,6 +19,7 @@ import {
   Edit,
   FileText,
   Search,
+  Heart,
   LogOut,
 } from 'lucide-react';
 import { api } from '@/lib/api';
@@ -58,6 +59,7 @@ type TimeFilterOption = 'all' | 'today' | 'week' | 'month';
 
 const navItems = [
   { id: 'dashboard', label: '仪表盘', icon: LayoutDashboard, active: false },
+  { id: 'emotion', label: '情绪日记', icon: Heart, href: '/emotion' },
   { id: 'tasks', label: '任务管理', icon: CheckSquare, active: true },
   { id: 'notes', label: '知识笔记', icon: BookOpen, active: false },
   { id: 'calendar', label: '日历', icon: Calendar, active: false },

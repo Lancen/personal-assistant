@@ -7,6 +7,10 @@ import authRoutes from './routes/auth';
 import adminUserRoutes from './routes/adminUsers';
 import taskRoutes from './routes/tasks';
 import noteRoutes from './routes/notes';
+import emotionRoutes from './routes/emotion';
+import emotionCheckRoutes from './routes/emotionCheck';
+import aiRoutes from './routes/ai';
+import settingsRoutes from './routes/settings';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +29,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminUserRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/emotion/records', emotionRoutes);
+app.use('/api/emotion-check', emotionCheckRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // 启动服务器
 app.listen(PORT, () => {

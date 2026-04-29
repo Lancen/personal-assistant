@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Heart,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -22,6 +23,7 @@ import { Task, Note, CalendarEvent } from '@personal-assistant/types';
 
 const navItems = [
   { id: 'dashboard', label: '仪表盘', icon: LayoutDashboard, active: false },
+  { id: 'emotion', label: '情绪日记', icon: Heart, href: '/emotion' },
   { id: 'tasks', label: '任务管理', icon: CheckSquare, active: false },
   { id: 'notes', label: '知识笔记', icon: BookOpen, active: false },
   { id: 'calendar', label: '日历', icon: Calendar, active: true },
