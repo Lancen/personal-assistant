@@ -41,8 +41,9 @@ next-env.d.ts
 *.swo
 *~
 
-# Playwright test results
+# Playwright
 playwright-report/
 test-results/
 /test-results/
+.playwright-mcp/
 .claude/settings.local.json
